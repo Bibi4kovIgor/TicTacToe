@@ -5,7 +5,7 @@ import java.util.InputMismatchException;
 import java.util.Objects;
 import java.util.Scanner;
 
-import static edu.lemon_school.Action.EMPTY;
+import static edu.lemon_school.Sign.EMPTY;
 import static edu.lemon_school.Draw.drawField;
 import static edu.lemon_school.Utils.SIZE;
 
@@ -16,7 +16,7 @@ public class GamePlay {
     public static final String WRONG_INPUT_PARAMETERS =
             "Wrong coordinates parameters";
 
-    private final char[][] field = new char[SIZE][SIZE];
+    private final Sign[][] field = new Sign[SIZE][SIZE];
 
     public GamePlay () {
         initializeWithEmpties();
@@ -25,17 +25,17 @@ public class GamePlay {
     private void initializeWithEmpties() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                field[i][j] = EMPTY.getSign1();
+                field[i][j] = EMPTY;
             }
         }
     }
 
-    public char[][] getField() {
+    public Sign[][] getField() {
         return field;
     }
 
 
-    private GameStates getWinner(Action sign) {
+    private GameStates getWinner(Sign sign) {
         return switch (sign) {
             case CROSS -> GameStates.WINNERX;
             case ZERO -> GameStates.WINNER0;
@@ -43,12 +43,12 @@ public class GamePlay {
         };
     }
 
-    public GameStates checkGameState(char sign){
+    public GameStates checkGameState(Sign sign){
         if (isHorizontalCompleted(sign)
                 || isMainDiagonalCompleted(sign)
                 || isSideDiagonalCompleted(sign)
                 || isVerticalCompleted(sign)) {
-            return getWinner(Action.getSign(sign));
+            return getWinner(sign);
         } else if (isTie()) {
             return GameStates.TIE;
         }
@@ -56,8 +56,8 @@ public class GamePlay {
         return GameStates.GAME_IS_CONTINUE;
     }
 
-    private boolean isRowEquals(char[] temp, char sign) {
-        for (char c : temp) {
+    private boolean isRowEquals(Sign[] temp, Sign sign) {
+        for (Sign c : temp) {
             if(c != sign) {
                 return false;
             }
@@ -65,8 +65,8 @@ public class GamePlay {
         return true;
     }
 
-    private boolean isHorizontalCompleted(char sign) {
-        char[] temp = new char[SIZE];
+    private boolean isHorizontalCompleted(Sign sign) {
+        Sign[] temp = new Sign[SIZE];
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 if (field[i][j] == sign) {
@@ -76,13 +76,13 @@ public class GamePlay {
             if (isRowEquals(temp, sign)) {
                 return true;
             }
-            Arrays.fill(temp, EMPTY.getSign1());
+            Arrays.fill(temp, EMPTY);
         }
         return false;
     }
 
-    private boolean isVerticalCompleted(char sign) {
-        char[] temp = new char[SIZE];
+    private boolean isVerticalCompleted(Sign sign) {
+        Sign[] temp = new Sign[SIZE];
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 if (field[j][i] == sign) {
@@ -92,12 +92,12 @@ public class GamePlay {
             if(isRowEquals(temp, sign)) {
                 return true;
             }
-            Arrays.fill(temp, EMPTY.getSign1());
+            Arrays.fill(temp, EMPTY);
         }
         return false;
     }
 
-    private boolean isMainDiagonalCompleted(char sign) {
+    private boolean isMainDiagonalCompleted(Sign sign) {
         for (int i = 0; i < SIZE; i++) {
             if (field[i][i] != sign) {
                 return false;
@@ -106,7 +106,7 @@ public class GamePlay {
         return true;
     }
 
-    private boolean isSideDiagonalCompleted(char sign) {
+    private boolean isSideDiagonalCompleted(Sign sign) {
         for (int i = 0; i < SIZE; i++) {
             if (field[i][SIZE - i - 1] != sign) {
                 return false;
@@ -116,9 +116,9 @@ public class GamePlay {
     }
 
     private boolean isTie() {
-        for (char[] rows : field) {
-            for (char element : rows) {
-                if (element == EMPTY.getSign1()) {
+        for (Sign[] rows : field) {
+            for (Sign element : rows) {
+                if (element == EMPTY) {
                     return false;
                 }
             }
@@ -126,19 +126,12 @@ public class GamePlay {
         return true;
     }
 
-    public boolean inputTurnsCoordinates(int x, int y, char sign) {
+    public boolean inputTurnsCoordinates(int x, int y, Sign sign) {
         if (x >= SIZE || x < 0 || y >= SIZE || y < 0) {
             return false;
         }
 
-        if (sign != Action.ZERO.getSign1()
-                && sign != Action.CROSS.getSign1()
-                && sign != Action.ZERO.getSign2()
-                && sign != Action.CROSS.getSign2()) {
-            return false;
-        }
-
-        if(field[x][y] == EMPTY.getSign1()) {
+        if(field[x][y] == EMPTY) {
             field[x][y] = sign;
         } else {
             return false;
@@ -146,11 +139,11 @@ public class GamePlay {
         return true;
     }
 
-    private int[] inputValues(char sign) {
+    private int[] inputValues(Sign sign) {
         Scanner scanner = new Scanner(System.in);
         int[] inputArray = new int[2];
         try {
-            System.out.printf(INPUT_COORDINATES_X_Y, sign);
+            System.out.printf(INPUT_COORDINATES_X_Y, sign.getSign1());
             scanner.useDelimiter("\\s|,|\\n");
             inputArray[0] = scanner.nextInt();
             inputArray[1] = scanner.nextInt();
@@ -160,10 +153,11 @@ public class GamePlay {
         return inputArray;
     }
 
-    public GameStates game () {
+    public void game () {
         GameStates currentGameState = GameStates.GAME_IS_CONTINUE;
-        char sign = getSignFromInput().charAt(0);
 
+        drawField(field);
+        Sign sign = Sign.getSign(getSignFromInput().charAt(0));
         do {
             int[] coordinates = inputValues(sign);
             int x = coordinates[0];
@@ -174,10 +168,9 @@ public class GamePlay {
             }
             drawField(getField());
             currentGameState = checkGameState(sign);
-            sign = Action.getOppositeSign(sign);
+            sign = Sign.getOppositeSign(sign);
         } while(Objects.equals(currentGameState, GameStates.GAME_IS_CONTINUE));
-
-        return currentGameState;
+        System.out.println(currentGameState.getGameStateMessage());
     }
 
     private void printErrorCoordinatesMessage() {

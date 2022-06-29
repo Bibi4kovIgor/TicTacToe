@@ -1,6 +1,6 @@
 package edu.lemon_school;
 
-public enum Action {
+public enum Sign {
     CROSS('X', 'x'),
     ZERO('0', 'O'),
     EMPTY('\u0020', ' ');
@@ -8,7 +8,7 @@ public enum Action {
     private final char sign1;
     private final char sign2;
 
-    Action(char sign1, char sign2 ) {
+    Sign(char sign1, char sign2 ) {
         this.sign1 = sign1;
         this.sign2 = sign2;
     }
@@ -21,7 +21,7 @@ public enum Action {
         return sign2;
     }
 
-    public static Action getSign(char sign) {
+    public static Sign getSign(char sign) {
         return switch (sign) {
             case 'X', 'x' -> CROSS;
             case '0', 'O' -> ZERO;
@@ -29,11 +29,11 @@ public enum Action {
         };
     }
 
-    public static char getOppositeSign(char sign) {
+    public static Sign getOppositeSign(Sign sign) {
         return switch (sign) {
-            case 'X', 'x' -> ZERO.getSign1();
-            case '0', 'O' -> CROSS.getSign1();
-            default -> EMPTY.getSign1();
+            case CROSS -> ZERO;
+            case ZERO -> CROSS;
+            default -> EMPTY;
         };
     }
 }
