@@ -5,8 +5,8 @@ import java.util.InputMismatchException;
 import java.util.Objects;
 import java.util.Scanner;
 
-import static edu.lemon_school.Sign.EMPTY;
 import static edu.lemon_school.Draw.drawField;
+import static edu.lemon_school.Sign.*;
 import static edu.lemon_school.Utils.SIZE;
 
 public class GamePlay {
@@ -15,11 +15,18 @@ public class GamePlay {
     public static final String INPUT_COORDINATES_X_Y = "Input coordinates [row,column] for %c\n";
     public static final String WRONG_INPUT_PARAMETERS =
             "Wrong coordinates parameters";
+    public static final String WRONG_INPUT_PARAMETERS_SET_X =
+            "Wrong sign parameter set 'X' by default";
 
-    private final Sign[][] field = new Sign[SIZE][SIZE];
+    private final Sign[][] field;
 
     public GamePlay () {
+        field = new Sign[SIZE][SIZE];
         initializeWithEmpties();
+    }
+
+    public GamePlay(Sign[][] field) {
+        this.field = field;
     }
 
     private void initializeWithEmpties() {
@@ -157,7 +164,10 @@ public class GamePlay {
         GameStates currentGameState = GameStates.GAME_IS_CONTINUE;
 
         drawField(field);
-        Sign sign = Sign.getSign(getSignFromInput().charAt(0));
+        String inputSign = getSignFromInput();
+
+        Sign sign = inputSign.equals("") ? CROSS : getSign(inputSign.charAt(0));
+
         do {
             int[] coordinates = inputValues(sign);
             int x = coordinates[0];
@@ -180,8 +190,14 @@ public class GamePlay {
     private String getSignFromInput() {
         Scanner scanner = new Scanner(System.in);
         String input;
+
         System.out.print(INPUT_SIGN_WELCOME);
         input = scanner.next();
+        if(!Objects.equals(getSign(input.charAt(0)), CROSS)
+                && !Objects.equals(getSign(input.charAt(0)), ZERO)) {
+            input = "";
+        }
+
         return input;
     }
 }

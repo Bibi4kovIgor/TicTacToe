@@ -1,5 +1,7 @@
 package edu.lemon_school;
 
+import java.util.Objects;
+
 public enum Sign {
     CROSS('X', 'x'),
     ZERO('0', 'O'),
@@ -30,10 +32,6 @@ public enum Sign {
     }
 
     public static Sign getOppositeSign(Sign sign) {
-        return switch (sign) {
-            case CROSS -> ZERO;
-            case ZERO -> CROSS;
-            default -> EMPTY;
-        };
+        return Objects.equals(sign, CROSS) ? ZERO : CROSS;
     }
 }
